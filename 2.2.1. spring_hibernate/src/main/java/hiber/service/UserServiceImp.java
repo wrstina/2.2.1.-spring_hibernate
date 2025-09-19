@@ -13,8 +13,10 @@ public class UserServiceImp implements UserService {
 
    @Autowired
    private UserDao userDao;
+    @Autowired
+    private UserService userService;
 
-   @Transactional
+    @Transactional
    @Override
    public void add(User user) {
       userDao.add(user);
@@ -26,4 +28,14 @@ public class UserServiceImp implements UserService {
       return userDao.listUsers();
    }
 
+    @Transactional
+    @Override
+    public User findUserByCarModelAndSeries(String model, int series) {
+        User user = userDao.findUserByCarModelAndSeries(model, series);
+        if (user != null) {
+            System.out.println("Found user: " + user.getFirstName() + " for car: " + model + " " + series);
+        }
+        return user;
+
+    }
 }
