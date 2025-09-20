@@ -4,6 +4,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(
+        name = "User_with_Car",
+        attributeNodes = { @NamedAttributeNode("car")
+        }
+)
+
 public class User {
 
    @Id
@@ -19,7 +25,7 @@ public class User {
    @Column(name = "email")
    private String email;
 
-   @OneToOne(cascade = CascadeType.ALL)
+   @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
    @JoinColumn(name = "car_id")
    private Car car;
 

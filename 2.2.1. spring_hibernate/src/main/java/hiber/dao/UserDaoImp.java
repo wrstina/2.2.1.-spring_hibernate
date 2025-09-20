@@ -3,9 +3,9 @@ package hiber.dao;
 import hiber.model.User;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityGraph;
+import javax.persistence.*;
 import java.util.List;
 
 @Repository
@@ -29,20 +29,26 @@ public class UserDaoImp implements UserDao {
 
     @Override
    public List<User> listUsers() {
-      TypedQuery<User> query=sessionFactory.getCurrentSession().createQuery("from User");
-      return query.getResultList();
+        String hql = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.car";
+        TypedQuery <User> query = sessionFactory.getCurrentSession().createQuery(hql, User.class);
+        return query.getResultList();
    }
 
     @Override
     public User findUserByCarModelAndSeries(String model, int series) {
-        String hql = "FROM User u WHERE u.car.model = :model AND u.car.series = :series";
+        EntityGraph<User> entityGraph = sessionFactory.getCurrentSession().createEntityGraph((User.class));
+        entityGraph.addAttributeNodes("car");
+
+        String hql = "SELECT u FROM User u WHERE u.car.model = :model AND u.car.series = :series";
+
         TypedQuery<User> query = sessionFactory.getCurrentSession()
                 .createQuery(hql, User.class)
                 .setParameter("model", model)
-                .setParameter("series", series);
+                .setParameter("series", series)
+                .setHint("javax.persistence.fetchgraph",
+                        sessionFactory.getCurrentSession().getEntityGraph("User_with_Car"));
 
         return query.getSingleResult();
     }
-
 }
 
